@@ -1,0 +1,103 @@
+
+   Summary motif results
+   =====================
+mfinder Version 1.20
+
+MOTIF FINDER RESULTS:
+
+	Network name: ../network/citation/processed_Cit-HepPh.txt
+	Network type: Non-Directed
+	Num of Nodes: 34545 Num of Edges: 420877
+	Num of Nodes with edges: 34545
+	Maximal out degree (out-hub) : 846
+	Maximal in degree (in-hub) : 846
+	Roots num: 0 Leaves num: 0
+	Single Edges num: 0 Mutual Edges num: 420863
+
+	Motif size searched  3
+	Number of random networks generated : 0
+	Random networks generation method: Switches
+	Num of Switches range: 100.0-200.0, Success switches Ratio:0.000+-0.00
+
+	Algorithm used : Probabilistic (num of samples : 50000)
+
+The following motifs were found:
+
+Criteria taken : Creal Zscore > 2.00
+                 Pval ignored (due to small number of random networks)
+                 Mfactor > 1.10
+                 Uniqueness >= 0
+
+
+
+	Full list includes 4 motifs
+
+MOTIF	CREAL	CRAND		CREAL	CREAL	UNIQ	HITS
+ID	[mili]	STATS		ZSCORE	PVAL	
+
+14	0.100	0.000+-0.000	888888	0.000	1	4	
+
+0 1 1 
+1 0 0 
+0 0 0 
+
+36	0.027	0.000+-0.000	888888	0.000	1	2	
+
+0 0 1 
+0 0 1 
+0 0 0 
+
+78	947.050	0.000+-0.000	888888	0.000	4751	41573	
+
+0 1 1 
+1 0 0 
+1 0 0 
+
+238	52.823	0.000+-0.000	888888	0.000	2806	8421	
+
+0 1 1 
+1 0 1 
+1 1 0 
+
+
+
+
+Full list of subgraphs size 3 ids:
+
+	( Total num of different subgraphs size 3 is : 13 )
+
+MOTIF	CREAL	CRAND		CREAL	CREAL	UNIQ	HITS
+ID	[mili]	STATS		ZSCORE	PVAL		
+6	0.000	0.000+-0.000	888888	0.000	0	0
+
+12	0.000	0.000+-0.000	888888	0.000	0	0
+
+14	0.100	0.000+-0.000	888888	0.000	1	4
+
+36	0.027	0.000+-0.000	888888	0.000	1	2
+
+38	0.000	0.000+-0.000	888888	0.000	0	0
+
+46	0.000	0.000+-0.000	888888	0.000	0	0
+
+74	0.000	0.000+-0.000	888888	0.000	0	0
+
+78	947.050	0.000+-0.000	888888	0.000	4751	41573
+
+98	0.000	0.000+-0.000	888888	0.000	0	0
+
+102	0.000	0.000+-0.000	888888	0.000	0	0
+
+108	0.000	0.000+-0.000	888888	0.000	0	0
+
+110	0.000	0.000+-0.000	888888	0.000	0	0
+
+238	52.823	0.000+-0.000	888888	0.000	2806	8421
+
+
+
+ (Application total runtime was:   1.20 minutes).
+
+ (Real network processing runtime was:   15.0 seconds.)
+
+ (Single Random network processing runtime was:    0.0 seconds.)
