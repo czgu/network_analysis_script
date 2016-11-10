@@ -1,0 +1,6 @@
+How to run:
+    ./finder input_file output_file num_threads num_samples
+TODO:
+    - Add multithreading
+    - Find a quicker/simpler to identify motif
+    - create a way to prevent P or W overflow
