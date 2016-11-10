@@ -1,3 +1,5 @@
+How to comile:
+    make
 How to run:
     ./finder input_file output_file num_threads num_samples
 TODO:
