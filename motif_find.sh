@@ -13,13 +13,10 @@ then
 
             if [[ $file_name == processed* ]]
             then
-                file_name=${file_name#processed_} 
-                echo $file_name
+                file_name=${file_name#processed_}
+                echo $file
 
-                for ((i=3; i<=4; i++))
-                do
-                    ./mfinder $file -nd -f $top_level/$dir/motif_${i}_${file_name} -r 0 -s $i -p 50000
-                done
+                ./finder $file $top_level/$dir/out_${i}_${file_name}.txt 1 50000
             fi
 
         done
@@ -34,10 +31,7 @@ else
             file_name=${file_name#processed_} 
             echo $file_name
 
-            for ((i=3; i<=4; i++))
-            do
-                ./mfinder $file -nd -f ${top_level}/motif_${i}_${file_name} -r 0 -s $i -p 50000
-            done
+            ./finder $file ${top_level}/motif_${i}_${file_name} 1 50000
         fi
 
     done

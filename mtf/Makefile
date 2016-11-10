@@ -1,21 +1,21 @@
 # 
 CC=g++
 # 
-FLAGS=-Wall -O3 -std=c++11
+FLAGS=-Wall -std=c++11
 
 
 FILES=main motif graph
-SOURCES=$(FILES:=.c)
+SOURCES=$(FILES:=.cc)
 OBJECTS=$(FILES:=.o)
 EXECUTABLES=finder
 
 all: $(SOURCES) $(EXECUTABLES)
-	
-$(EXECUTABLES): $(OBJECTS) 
-	$(CC) $(OBJECTS) $(FLAGS) -o $(EXECUTABLES)
 
-$(FILES):
-	$(CC) $(FLAGS) $@.c -o $@.o
+%.o:%.cc
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(EXECUTABLES): $(OBJECTS)
+	$(CC) $(OBJECTS) $(FLAGS) -o $(EXECUTABLES)
 
 clean:
 	rm -rf *o finder

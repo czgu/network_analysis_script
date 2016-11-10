@@ -2,9 +2,15 @@
 #define MOTIF_H
 
 #include <string>
+#include <map>
+#include <vector>
 #include "graph.h"
 
-class Motif {
+struct MotifSampleResult {
+    std::map<int, double> scores;
+    int motifSize;
+
+    void normalizeResult();
 };
 
 class MotifFinder {
@@ -14,7 +20,8 @@ public:
     void sample(int numSample, int numThread);
     void output(std::string fName);
 private:
-
+    Graph graph;
+    std::vector<MotifSampleResult *> results;
 };
 
 
