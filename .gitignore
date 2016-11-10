@@ -1,3 +1,4 @@
 *.o
 mfinder
 finder
+.DS_Store
