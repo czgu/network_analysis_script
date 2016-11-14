@@ -17,9 +17,8 @@ int main(int argc,  char** argv) {
         int numSample = atoi(argv[4]);
 
         MotifFinder mfinder;
-        mfinder.parseMotif(fName);
-        mfinder.sample(numSample, numThread);
-        mfinder.output(fOutName);
+        mfinder.run(fName, fOutName, numThread, numSample);
+
     }
 
     return 0;

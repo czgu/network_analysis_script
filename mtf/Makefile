@@ -6,7 +6,7 @@ MACCC=clang++
 LINUXFLAGS=-Wall -std=c++11 -pthread
 MACFLAGS=-Wall -std=c++11 -stdlib=libc++
 
-FILES=main motif graph
+FILES=main motif graph timer
 SOURCES=$(FILES:=.cc)
 OBJECTS=$(FILES:=.o)
 EXECUTABLES=finder
