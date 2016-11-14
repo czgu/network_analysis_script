@@ -11,6 +11,7 @@ struct MotifSampleResult {
     int motifSize;
 
     void normalizeResult();
+    void sum(const MotifSampleResult& r);
 };
 
 class MotifFinder {

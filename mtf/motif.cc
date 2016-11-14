@@ -4,10 +4,26 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include  <random>
-#include  <cmath>
+#include <random>
+#include <cmath>
+#include <thread>
 
 using namespace std;
+
+void MotifSampleResult::sum(const MotifSampleResult& r) {
+    if (r.motifSize != this->motifSize) {
+        // TODO: Assert this
+        return;
+    }
+
+    for (auto const& pair : r.scores) {
+        if (this->scores.count(pair.first) == 0) {
+            this->scores[pair.first] = pair.second;
+        } else {
+            this->scores[pair.first] += pair.second;
+        }
+    }
+}
 
 void MotifSampleResult::normalizeResult() {
     double sum = 0;
@@ -143,16 +159,16 @@ int categorizeMotif(vector<int>& vertex_degrees, int motifSize) {
     return id;
 }
 
-void MotifSample(int motifSize, int numSample, MotifSampleResult* & result, Graph& graph) {
-    result = new MotifSampleResult();
-    result->motifSize = motifSize;
+void MotifSample(int motifSize, int numSample, MotifSampleResult** result, Graph* graph) {
+    *result = new MotifSampleResult();
+    (*result)->motifSize = motifSize;
     double normalizationFactor = numSample * pow(10, motifSize);
 
     cout << "Num sample:" << numSample << " " << normalizationFactor << endl;
     for (int _i = 0; _i < numSample; _i++) {
         // Pick a random edge
-        int idx = rand() % graph.edges.size();
-        Pair edge = graph.edges[idx];
+        int idx = rand() % graph->edges.size();
+        Pair edge = graph->edges[idx];
 
         // Create a set of vertices and possible vertices
         vector<long> vertices;
@@ -160,10 +176,10 @@ void MotifSample(int motifSize, int numSample, MotifSampleResult* & result, Grap
 
         // Push them in this order so that they would not appear in possible vertices
         vertices.push_back(edge.j);
-        findAllPossibleVertices(vertices, possibleVertices, graph, edge.i);
+        findAllPossibleVertices(vertices, possibleVertices, *graph, edge.i);
 
         vertices.push_back(edge.i);
-        findAllPossibleVertices(vertices, possibleVertices, graph, edge.j);
+        findAllPossibleVertices(vertices, possibleVertices, *graph, edge.j);
 
         for (int i = 0; i < motifSize - 2; i++) {
             if (possibleVertices.size() == 0) {
@@ -173,7 +189,7 @@ void MotifSample(int motifSize, int numSample, MotifSampleResult* & result, Grap
             idx = rand() % possibleVertices.size();
             long vertex = possibleVertices[idx];
 
-            findAllPossibleVertices(vertices, possibleVertices, graph, vertex);
+            findAllPossibleVertices(vertices, possibleVertices, *graph, vertex);
             vertices.push_back(vertex);
 
             // Remove "vertex"
@@ -193,7 +209,7 @@ void MotifSample(int motifSize, int numSample, MotifSampleResult* & result, Grap
 
         for (int i = 0; i < motifSize - 1; i++) {
             for (int j = i + 1; j < motifSize; j++) {
-                if (graph.nodes[vertices[i]]->edges.count(vertices[j]) != 0) {
+                if (graph->nodes[vertices[i]]->edges.count(vertices[j]) != 0) {
                     // Add 1 degree to vertices i and j
                     vertex_degrees[i] ++;
                     vertex_degrees[j] ++;
@@ -204,15 +220,15 @@ void MotifSample(int motifSize, int numSample, MotifSampleResult* & result, Grap
                     vector<long> current_edges;
 
                     current_vertices.push_back(vertices[i]);
-                    findAllPossibleVertices(current_vertices, current_edges, graph, vertices[j]);
+                    findAllPossibleVertices(current_vertices, current_edges, *graph, vertices[j]);
                     current_vertices.push_back(vertices[j]);
-                    findAllPossibleVertices(current_vertices, current_edges, graph, vertices[i]);
+                    findAllPossibleVertices(current_vertices, current_edges, *graph, vertices[i]);
 
-                    P += findProbability(motifSize, graph, counted_vertices, vertices, current_edges, current_vertices);
+                    P += findProbability(motifSize, *graph, counted_vertices, vertices, current_edges, current_vertices);
                 }
             }
         }
-        P /= (graph.edges.size() / normalizationFactor);
+        P /= (graph->edges.size() / normalizationFactor);
 
         if (P == 0) {
             continue;
@@ -223,20 +239,42 @@ void MotifSample(int motifSize, int numSample, MotifSampleResult* & result, Grap
         double W = 1 / P;
 
 
-        if (result->scores.count(motifId) == 0) {
-            result->scores[motifId] = W;
+        if ((*result)->scores.count(motifId) == 0) {
+            (*result)->scores[motifId] = W;
         } else {
-            result->scores[motifId] += W;
+            (*result)->scores[motifId] += W;
         }
     }
 }
 
 
 void MotifFinder::sample(int numSample, int numThread) {
+    int samplePerThread = numSample / numThread;
     for (int i = 3; i <= 4; i++) {
-        MotifSampleResult* result = NULL;
-        MotifSample(i, numSample, result, this->graph);
-        this->results.push_back(result);
+        MotifSampleResult** results = new MotifSampleResult*[numThread];
+        std::thread* threads = new std::thread[numThread];
+
+        for (int j = 0; j < numThread; j++) {
+            threads[j] = std::thread(MotifSample, i, samplePerThread, results + j, &this->graph);
+            // MotifSample( i, samplePerThread, results + j, &this->graph);
+        }
+
+        // Map
+        for (int j = 0; j < numThread; j++) {
+            threads[j].join();
+        }
+        // Reduce
+        MotifSampleResult* total_result = new MotifSampleResult();
+        total_result->motifSize = i;
+        for (int j = 0; j < numThread; j++) {
+            total_result->sum(*results[j]);
+        }
+
+
+        this->results.push_back(total_result);
+        // Clean up
+        delete [] threads;
+        delete [] results;
     }
 
     // Normalize
