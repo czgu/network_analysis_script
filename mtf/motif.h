@@ -8,7 +8,7 @@
 
 struct MotifSampleResult {
     std::map<int, double> scores;
-    int motifSize;
+    unsigned int motifSize;
 
     void normalizeResult();
     void sum(const MotifSampleResult& r);
@@ -27,9 +27,9 @@ private:
 };
 
 void findAllPossibleVertices(std::vector<long>& vertices, std::vector<long>& possibleVertices, Graph& graph, long vertex);
-double findProbability(int motifSize, Graph& graph, int counted_vertices, std::vector<long>& vertices, std::vector<long>& edges, std::vector<long>& current_vertices);
-int categorizeMotif(std::vector<int>& vertex_degrees, int motifSize);
-void MotifSample(int motifSize, int numSample, MotifSampleResult** result, Graph* graph_ptr);
+double findProbability(unsigned int motifSize, Graph& graph, int counted_vertices, std::vector<long>& vertices, std::vector<long>& edges, std::vector<long>& current_vertices);
+int categorizeMotif(std::vector<int>& vertex_degrees, unsigned int motifSize);
+void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** result, Graph* graph_ptr);
 
 
 #endif

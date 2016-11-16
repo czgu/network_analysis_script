@@ -69,14 +69,14 @@ void findAllPossibleVertices(vector<long>& vertices, vector<long>& possibleVerti
     }
 }
 
-double findProbability(int motifSize, Graph& graph, int counted_vertices, vector<long>& vertices, vector<long>& edges, vector<long>& current_vertices) {
+double findProbability(unsigned int motifSize, Graph& graph, int counted_vertices, vector<long>& vertices, vector<long>& edges, vector<long>& current_vertices) {
     if (current_vertices.size() >= motifSize) {
         return 1.0f;
     }
 
     double total_probability = 0.0f;
 
-    for (int i = 0; i < motifSize; i++) {
+    for (unsigned int i = 0; i < motifSize; i++) {
         if ((counted_vertices & (1 << i)) == 0) {
             int edge_count = 0;
 
@@ -111,10 +111,10 @@ double findProbability(int motifSize, Graph& graph, int counted_vertices, vector
     return total_probability;
 }
 
-int categorizeMotif(vector<int>& vertex_degrees, int motifSize) {
+int categorizeMotif(vector<int>& vertex_degrees, unsigned int motifSize) {
     sort(vertex_degrees.begin(), vertex_degrees.end());
     int hash = 0;
-    for (int i = 0; i < motifSize; i++) {
+    for (unsigned int i = 0; i < motifSize; i++) {
         if (hash == 0) {
             hash = vertex_degrees[i];
         } else {
@@ -160,7 +160,7 @@ int categorizeMotif(vector<int>& vertex_degrees, int motifSize) {
     return id;
 }
 
-void MotifSample(int motifSize, int numSample, MotifSampleResult** result, Graph* graph_ptr) {
+void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** result, Graph* graph_ptr) {
     MotifSampleResult* localSample = new MotifSampleResult();
     Graph& graph = *graph_ptr;
 
@@ -185,7 +185,7 @@ void MotifSample(int motifSize, int numSample, MotifSampleResult** result, Graph
         vertices.push_back(edge.i);
         findAllPossibleVertices(vertices, possibleVertices, graph, edge.j);
 
-        for (int i = 0; i < motifSize - 2; i++) {
+        for (unsigned int i = 0; i < motifSize - 2; i++) {
             if (possibleVertices.size() == 0) {
                 break;
             }
@@ -207,12 +207,12 @@ void MotifSample(int motifSize, int numSample, MotifSampleResult** result, Graph
         // Calculate the probability
         double P = 0;
         vector<int> vertex_degrees;
-        for (int i = 0; i < motifSize; i++) {
+        for (unsigned int i = 0; i < motifSize; i++) {
             vertex_degrees.push_back(0);
         }
 
-        for (int i = 0; i < motifSize - 1; i++) {
-            for (int j = i + 1; j < motifSize; j++) {
+        for (unsigned int i = 0; i < motifSize - 1; i++) {
+            for (unsigned int j = i + 1; j < motifSize; j++) {
                 if (graph.nodes[vertices[i]]->edges.count(vertices[j]) != 0) {
                     // Add 1 degree to vertices i and j
                     vertex_degrees[i] ++;
