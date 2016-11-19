@@ -131,26 +131,23 @@ int categorizeMotif(vector<int>& vertex_degrees, unsigned int motifSize) {
         }
     } else if (motifSize == 4) {
         switch (hash) {
-            case 1112:
+            case 1113:
                 id = 2;
                 break;
-            case 1113:
+            case 1223:
                 id = 3;
                 break;
-            case 1223:
+            case 2222:
                 id = 4;
                 break;
-            case 2222:
+            case 1122:
                 id = 5;
                 break;
-            case 1122:
+            case 2233:
                 id = 6;
                 break;
-            case 2233:
-                id = 7;
-                break;
             case 3333:
-                id = 8;
+                id = 7;
                 break;
             default:
                 break;
