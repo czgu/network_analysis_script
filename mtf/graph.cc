@@ -2,9 +2,6 @@
 
 Pair::Pair(long i, long j): i(i), j(j) {}
 
-Node::Node(long id) : id(id) {
-}
-
 Graph::Graph() {
 }
 
@@ -18,11 +15,11 @@ void Graph::insert_edge(long a, long b) {
     }
 
     if (nodes.count(a) == 0) {
-        nodes[a] = new Node(a);
+        nodes[a] = new Node();
     }
 
     if (nodes.count(b) == 0) {
-        nodes[b] = new Node(b);
+        nodes[b] = new Node();
     }
 
     Node* na = this->nodes[a];

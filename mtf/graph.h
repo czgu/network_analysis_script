@@ -12,9 +12,7 @@ struct Pair {
 };
 
 struct Node {
-    Node(long id);
     std::set<long> edges;
-    long id;
 };
 
 class Graph {
