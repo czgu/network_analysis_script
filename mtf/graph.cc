@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
+#include <climits>
 
 Pair::Pair(uint i, uint j): i(i), j(j) {}
 
@@ -49,15 +49,21 @@ void Graph::loadGraph(std::string file, int mode) {
             continue;
         }
 
-        long a,b;
-        ss >> a >> b;
-
+        long a;
+        ss >> a;
         uint aid = get_vertex_id(a, compressMap);
-        uint bid = get_vertex_id(b, compressMap);
 
-        this->insert_edge(aid, bid);
+        long b;
+        while (ss >> b) {
+            uint bid = get_vertex_id(b, compressMap);
+            this->insert_edge(aid, bid);
+        }
 
         num_edges ++;
+
+        if (nodes.size() >= UINT_MAX) {
+            break;
+        }
     }
 
     std::cout << "Number of vertices: " << nodes.size() << std::endl;
