@@ -138,6 +138,10 @@ int categorizeMotif(vector<int>& vertex_degrees, unsigned int motifSize) {
         }
     }
 
+    if (id == -1) {
+        cout << "Motif: " << motifSize << ", Hash:" << hash << endl;
+    }
+
     return id;
 }
 
@@ -152,22 +156,18 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
     // cout << "Num sample:" << numSample << " " << normalizationFactor << endl;
     for (int _i = 0; _i < numSample; _i++) {
         // Pick a random node
-        auto it = graph.nodes.begin();
-        std::advance(it, rand() % graph.nodes.size());
-        long v1 = it->first;
+        uint v1 = rand() % graph.nodes.size();
+        uint v1degree = graph.nodes[v1]->edges.size();
 
         // If we have a bad pick for vertices, restart the process
-        if (it->second->edges.size() == 0) {
+        if (v1degree == 0) {
             _i --;
             continue;
         }
-
         // From that node, pick a random neighbor
-        auto it2 = it->second->edges.begin();
-        std::advance(it2, rand() % it->second->edges.size());
-        long v2 = *it2;
+        long v2 = graph.nodes[v1]->edges[rand() % v1degree];
 
-        double edgeChance = (1.0f / it->second->edges.size());
+        double edgeChance = (1.0f / v1degree);
         Pair edge(v1, v2);
 
         // Create a set of vertices and possible vertices
@@ -209,7 +209,8 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
 
         for (unsigned int i = 0; i < motifSize - 1; i++) {
             for (unsigned int j = i + 1; j < motifSize; j++) {
-                if (graph.nodes[vertices[i]]->edges.count(vertices[j]) != 0) {
+                auto& vi_edges = graph.nodes[vertices[i]]->edges;
+                if (find(vi_edges.begin(), vi_edges.end(), vertices[j]) != vi_edges.end()) {
                     // Add 1 degree to vertices i and j
                     vertex_degrees[i] ++;
                     vertex_degrees[j] ++;
@@ -282,6 +283,9 @@ void MotifFinder::sample(int numSample, int numThread) {
         }
         delete [] threads;
         delete [] results;
+
+        threads = NULL;
+        results = NULL;
     }
 
     // Normalize

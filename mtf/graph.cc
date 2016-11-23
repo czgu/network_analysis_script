@@ -23,15 +23,15 @@ void Graph::insert_edge(uint a, uint b) {
     Node* na = this->nodes[a];
     Node* nb = this->nodes[b];
 
-    na->edges.insert(b);
-    nb->edges.insert(a);
+    na->edges.push_back(b);
+    nb->edges.push_back(a);
 }
 
 uint Graph::get_vertex_id(long id, std::map<long, uint>& compressMap) {
     if (compressMap.count(id) == 0) {
-        uint vertex_id = compressMap.size();
+        uint vertex_id = nodes.size();
         compressMap[id] = vertex_id;
-        nodes[vertex_id] = new Node();
+        nodes.push_back(new Node());
     }
     return compressMap[id];
 }

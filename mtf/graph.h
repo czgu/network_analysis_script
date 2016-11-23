@@ -1,7 +1,6 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <set>
 #include <map>
 #include <vector>
 #include <string>
@@ -15,7 +14,7 @@ struct Pair {
 };
 
 struct Node {
-    std::set<uint> edges;
+    std::vector<uint> edges;
 };
 
 class Graph {
@@ -25,7 +24,7 @@ public:
 
     uint get_vertex_id(long id, std::map<long, uint>& compressMap);
     void insert_edge(uint a, uint b);
-    std::map<uint, Node *> nodes;
+    std::vector<Node *> nodes;
 };
 
 #endif
