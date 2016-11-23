@@ -40,7 +40,7 @@ void Graph::loadGraph(std::string file, int mode) {
     std::ifstream in(file);
 
     std::string line;
-    long num_edges = 0;
+    unsigned long num_edges = 0;
 
     std::map<long, uint> compressMap;
     while (getline(in, line)) {
@@ -57,9 +57,9 @@ void Graph::loadGraph(std::string file, int mode) {
         while (ss >> b) {
             uint bid = get_vertex_id(b, compressMap);
             this->insert_edge(aid, bid);
+            num_edges ++;
         }
 
-        num_edges ++;
 
         if (nodes.size() >= UINT_MAX) {
             break;
