@@ -1,9 +1,8 @@
 #include "motif.h"
 #include "timer.h"
 
-#include <fstream>
 #include <iostream>
-#include <sstream>
+#include <fstream>
 #include <algorithm>
 #include <random>
 #include <cmath>
@@ -31,10 +30,10 @@ void MotifSampleResult::normalizeResult() {
     for(auto const& pair : this->scores) {
         sum += (pair.second / 100); // so that the result is in %
     }
-    // cout << sum << endl;
+    cout << "sum: " << sum << endl;
     for(auto const& pair : this->scores) {
         this->scores[pair.first] = ((pair.second) / sum);
-        // cout << "score: " << this->scores[pair.first] << endl;
+        cout << pair.first << " score: " << this->scores[pair.first] << endl;
     }
 }
 
@@ -42,23 +41,8 @@ MotifFinder::MotifFinder() {
 
 }
 
-void MotifFinder::parseMotif(string fName) {
-    ifstream in(fName);
- 
-    string line;
-    while (getline(in, line)) {
-        stringstream ss(line);
-        if (line[0] == '#') {
-            continue;
-        }
-
-        long a,b;
-        ss >> a >> b;
-
-        graph.insert_edge(a, b);
-    }
-
-    in.close();
+void MotifFinder::load(string fName, int mode) {
+    this->graph.loadGraph(fName, mode);
 }
 
 void findAllPossibleVertices(vector<long>& vertices, vector<long>& possibleVertices, Graph& graph, long vertex) {
@@ -167,9 +151,24 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
 
     // cout << "Num sample:" << numSample << " " << normalizationFactor << endl;
     for (int _i = 0; _i < numSample; _i++) {
-        // Pick a random edge
-        int idx = rand() % graph.edges.size();
-        Pair edge = graph.edges[idx];
+        // Pick a random node
+        auto it = graph.nodes.begin();
+        std::advance(it, rand() % graph.nodes.size());
+        long v1 = it->first;
+
+        // If we have a bad pick for vertices, restart the process
+        if (it->second->edges.size() == 0) {
+            _i --;
+            continue;
+        }
+
+        // From that node, pick a random neighbor
+        auto it2 = it->second->edges.begin();
+        std::advance(it2, rand() % it->second->edges.size());
+        long v2 = *it2;
+
+        double edgeChance = (1.0f / it->second->edges.size());
+        Pair edge(v1, v2);
 
         // Create a set of vertices and possible vertices
         vector<long> vertices;
@@ -187,7 +186,7 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
                 break;
             }
 
-            idx = rand() % possibleVertices.size();
+            unsigned int idx = rand() % possibleVertices.size();
             long vertex = possibleVertices[idx];
 
             findAllPossibleVertices(vertices, possibleVertices, graph, vertex);
@@ -231,7 +230,7 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
         }
 
         // To prevent P to be too small, which makes 1/P smaller
-        P *= normalizationFactor;
+        P *= (normalizationFactor * edgeChance);
 
         if (P == 0) {
             continue;
@@ -304,7 +303,7 @@ void MotifFinder::output(string fName) {
 
 void MotifFinder::run(string inFile, string outFile, int numThread, int numSample) {
     Timer timer;
-    this->parseMotif(inFile);
+    this->load(inFile, 0);
     cout << "Parsed. Time took: " << timer.updateAnchorTime() << endl;
     this->sample(numSample, numThread);
     cout << "Sampling completed. Time took: " << timer.updateAnchorTime() << endl;

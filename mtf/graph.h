@@ -4,23 +4,28 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <string>
+
+typedef unsigned int uint;
 
 struct Pair {
-    long i;
-    long j;
-    Pair(long i, long j);
+    uint i;
+    uint j;
+    Pair(uint i, uint j);
 };
 
 struct Node {
-    std::set<long> edges;
+    std::set<uint> edges;
 };
 
 class Graph {
 public:
     Graph();
-    void insert_edge(long a, long b);
-    std::map<long, Node *> nodes;
-    std::vector<Pair> edges;
+    void loadGraph(std::string file, int mode);
+
+    uint get_vertex_id(long id, std::map<long, uint>& compressMap);
+    void insert_edge(uint a, uint b);
+    std::map<uint, Node *> nodes;
 };
 
 #endif

@@ -17,7 +17,7 @@ struct MotifSampleResult {
 class MotifFinder {
 public:
     MotifFinder();
-    void parseMotif(std::string fName);
+    void load(std::string fName, int mode);
     void sample(int numSample, int numThread);
     void output(std::string fName);
     void run(std::string inFile, std::string outFile, int numThread, int numSample);
