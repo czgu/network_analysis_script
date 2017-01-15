@@ -3,6 +3,8 @@
 
 #include <ctime>
 
+// A quick class to have diagnostic on time
+
 class Timer {
   public:
     Timer();

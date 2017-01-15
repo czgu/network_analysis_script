@@ -27,13 +27,16 @@ void MotifSampleResult::sum(const MotifSampleResult& r) {
 
 void MotifSampleResult::normalizeResult() {
     double sum = 0;
+    // Calculate the sum of the scores
     for(auto const& pair : this->scores) {
-        sum += (pair.second / 100); // so that the result is in %
+        sum += pair.second;
     }
-    cout << "sum: " << sum << endl;
+    // cout << "sum: " << sum << endl;
     for(auto const& pair : this->scores) {
-        this->scores[pair.first] = ((pair.second) / sum);
-        cout << pair.first << " score: " << this->scores[pair.first] << endl;
+        // so that the output score is percentages
+        this->scores[pair.first] = ((pair.second) / sum) * 100;         
+
+        // cout << pair.first << " score: " << this->scores[pair.first] << endl;
     }
 }
 
@@ -41,8 +44,8 @@ MotifFinder::MotifFinder() {
 
 }
 
-void MotifFinder::load(string fName, int mode) {
-    this->graph.loadGraph(fName, mode);
+void MotifFinder::load(string fName, bool isDirected) {
+    this->graph.loadGraph(fName, isDirected);
 }
 
 void findAllPossibleVertices(vector<long>& vertices, vector<long>& possibleVertices, Graph& graph, long vertex) {
@@ -54,16 +57,23 @@ void findAllPossibleVertices(vector<long>& vertices, vector<long>& possibleVerti
 }
 
 double findProbability(unsigned int motifSize, Graph& graph, int counted_vertices, vector<long>& vertices, vector<long>& edges, vector<long>& current_vertices) {
-    if (current_vertices.size() >= motifSize) {
+    // We fill current_vertices until it has all vertices, while recursively calculate the probability of each possible edge selection
+    if (current_vertices.size() >= motifSize) { // completed search
         return 1.0f;
     }
 
     double total_probability = 0.0f;
 
+    // iterate through all ways to pick a vertex
     for (unsigned int i = 0; i < motifSize; i++) {
+        // We check using counted_vertices as a bitmap to see
+        // if the ith vertex of the subgraph is already included in current_vertices
         if ((counted_vertices & (1 << i)) == 0) {
+            // stores how many edges can connect us from current_vertices subgraph
+            // to the ith vertex
             int edge_count = 0;
 
+            // new list of edges after we remove the ones that points to ith vertex
             vector<long> remaining_edges;
 
             for (long& v : edges) {
@@ -74,16 +84,19 @@ double findProbability(unsigned int motifSize, Graph& graph, int counted_vertice
                 }
             }
 
+            // Currently cannot connect to the ith vertex
             if (edge_count == 0) {
-                // Currently cannot connect
                 continue;
             }
 
+            // the probability of adding the vertex to the graph
             double prob = ((double)edge_count) / edges.size();
             current_vertices.push_back(vertices[i]);
 
+            // add all the neighbor of ith vertex to remaining edges
             findAllPossibleVertices(current_vertices, remaining_edges, graph, vertices[i]);
 
+            // now recursively calculate the probability with ith vertex added
             prob *= findProbability(motifSize, graph, counted_vertices | (1 << i), vertices, remaining_edges, current_vertices);
 
             total_probability += prob;
@@ -96,7 +109,10 @@ double findProbability(unsigned int motifSize, Graph& graph, int counted_vertice
 }
 
 int categorizeMotif(vector<int>& vertex_degrees, unsigned int motifSize) {
+    // order the degree of each vertex in increasing order
     sort(vertex_degrees.begin(), vertex_degrees.end());
+    // now convert a list of degrees to a number
+    // for example [1, 2, 2, 3] => 1223
     int hash = 0;
     for (unsigned int i = 0; i < motifSize; i++) {
         if (hash == 0) {
@@ -106,6 +122,7 @@ int categorizeMotif(vector<int>& vertex_degrees, unsigned int motifSize) {
         }
     }
 
+    // Now assign a id to each number, the id represent the unique motif graph
     int id = -1;
     if (motifSize == 3) {
         if (hash == 112) {
@@ -151,11 +168,13 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
 
 
     localSample->motifSize = motifSize;
+
+    // this is used so that the sum of probability does not exceed floating point limit
     double normalizationFactor = numSample * pow(10, motifSize);
 
     // cout << "Num sample:" << numSample << " " << normalizationFactor << endl;
     for (int _i = 0; _i < numSample; _i++) {
-        // Pick a random node
+        // Pick a random vertex
         uint v1 = rand() % graph.nodes.size();
         uint v1degree = graph.nodes[v1]->edges.size();
 
@@ -200,7 +219,7 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
             continue;
         }
 
-        // Calculate the probability
+        // Calculate the probability of the subgraph being selected
         double P = 0;
         vector<int> vertex_degrees;
         for (unsigned int i = 0; i < motifSize; i++) {
@@ -215,16 +234,19 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
                     vertex_degrees[i] ++;
                     vertex_degrees[j] ++;
 
-
                     int counted_vertices = (1 << i) | (1 << j);
                     vector<long> current_vertices;
                     vector<long> current_edges;
 
+                    // add vertex i, j to the subgraph, and all their neighbors to the edge list
                     current_vertices.push_back(vertices[i]);
                     findAllPossibleVertices(current_vertices, current_edges, graph, vertices[j]);
                     current_vertices.push_back(vertices[j]);
                     findAllPossibleVertices(current_vertices, current_edges, graph, vertices[i]);
 
+                    // The probability of the subgraph being selected is calculated here,
+                    // we start with 2 randomly selected vertex of the subgraph and a list of their neighbors
+                    // and we try to calculate the probability of generating the subgraph by choosing their neighbor vertices
                     P += findProbability(motifSize, graph, counted_vertices, vertices, current_edges, current_vertices);
                 }
             }
@@ -241,7 +263,6 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
         int motifId = categorizeMotif(vertex_degrees, motifSize);
         double W = 1 / P;
 
-
         if (localSample->scores.count(motifId) == 0) {
             localSample->scores[motifId] = W;
         } else {
@@ -252,28 +273,31 @@ void MotifSample(unsigned int motifSize, int numSample, MotifSampleResult** resu
 }
 
 
-void MotifFinder::sample(int numSample, int numThread) {
+void MotifFinder::sample(MotifSetting& setting) {
+    int numSample = setting.numSample;
+    int numThread = setting.numThread;
+
     int samplePerThread = numSample / numThread;
-    for (int i = 3; i <= 4; i++) {
+    for (int i = setting.motifSizeMin; i <= setting.motifSizeMax; i++) {
         MotifSampleResult** results = new MotifSampleResult*[numThread];
         std::thread* threads = new std::thread[numThread];
 
+        // Sample on each thread
         for (int j = 0; j < numThread; j++) {
             threads[j] = std::thread(MotifSample, i, samplePerThread, results + j, &this->graph);
-            // MotifSample( i, samplePerThread, results + j, &this->graph);
         }
 
-        // Map
+        // Map (Run all subprocess of sampling)
         for (int j = 0; j < numThread; j++) {
             threads[j].join();
         }
-        // Reduce
+
+        // Reduce (merge results)
         MotifSampleResult* total_result = new MotifSampleResult();
         total_result->motifSize = i;
         for (int j = 0; j < numThread; j++) {
             total_result->sum(*results[j]);
         }
-
 
         this->results.push_back(total_result);
         // Clean up
@@ -305,13 +329,13 @@ void MotifFinder::output(string fName) {
     out.close();
 }
 
-void MotifFinder::run(string inFile, string outFile, int numThread, int numSample) {
+void MotifFinder::run(MotifSetting& setting) {
     Timer timer;
-    this->load(inFile, 0);
+    this->load(setting.inFile, setting.directed);
     cout << "Parsed. Time took: " << timer.updateAnchorTime() << endl;
-    this->sample(numSample, numThread);
+    this->sample(setting);
     cout << "Sampling completed. Time took: " << timer.updateAnchorTime() << endl;
-    this->output(outFile);
+    this->output(setting.outFile);
     cout << "Output completed. Time took: " << timer.updateAnchorTime() << endl;
 }
 

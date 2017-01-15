@@ -20,10 +20,10 @@ struct Node {
 class Graph {
 public:
     Graph();
-    void loadGraph(std::string file, int mode);
+    void loadGraph(std::string file, bool isDirected);
 
     uint get_vertex_id(long id, std::map<long, uint>& compressMap);
-    void insert_edge(uint a, uint b);
+    void insert_edge(uint a, uint b, bool isDirected);
     std::vector<Node *> nodes;
 };
 

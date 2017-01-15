@@ -16,7 +16,7 @@ then
                 file_name=${file_name#processed_}
                 echo $file
 
-                ./finder $file $top_level/$dir/out_${i}_${file_name}.txt 1 50000
+                ./finder $file $top_level/$dir/out_${i}_${file_name}.txt
             fi
 
         done
@@ -31,7 +31,7 @@ else
             file_name=${file_name#processed_} 
             echo $file_name
 
-            ./finder $file ${top_level}/motif_${i}_${file_name} 1 50000
+            ./finder $file ${top_level}/out_${i}_${file_name}
         fi
 
     done

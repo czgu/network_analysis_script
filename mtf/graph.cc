@@ -10,13 +10,9 @@ Pair::Pair(uint i, uint j): i(i), j(j) {}
 Graph::Graph() {
 }
 
-void Graph::insert_edge(uint a, uint b) {
+void Graph::insert_edge(uint a, uint b, bool isDirected) {
     if (a == b) {
         return;
-    }
-
-    if (a > b) {
-        insert_edge(b, a);
     }
 
     // Assert Node should already exist
@@ -24,7 +20,10 @@ void Graph::insert_edge(uint a, uint b) {
     Node* nb = this->nodes[b];
 
     na->edges.push_back(b);
-    nb->edges.push_back(a);
+
+    if (!isDirected) {
+        nb->edges.push_back(a);
+    }
 }
 
 uint Graph::get_vertex_id(long id, std::map<long, uint>& compressMap) {
@@ -36,7 +35,7 @@ uint Graph::get_vertex_id(long id, std::map<long, uint>& compressMap) {
     return compressMap[id];
 }
 
-void Graph::loadGraph(std::string file, int mode) {
+void Graph::loadGraph(std::string file, bool isDirected) {
     std::ifstream in(file);
 
     std::string line;
@@ -56,7 +55,7 @@ void Graph::loadGraph(std::string file, int mode) {
         long b;
         while (ss >> b) {
             uint bid = get_vertex_id(b, compressMap);
-            this->insert_edge(aid, bid);
+            this->insert_edge(aid, bid, isDirected);
             num_edges ++;
         }
 
